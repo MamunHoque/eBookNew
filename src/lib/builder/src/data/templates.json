@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Cover Page",
+    "type": "cover",
+    "content": "<div class='flex flex-col items-center justify-center h-full bg-gradient-to-r from-blue-500 to-purple-600 text-white p-8' style='width: 100%; height: 100%; padding: 40px;'><div class='border-4 border-white p-8 rounded-lg w-full h-full flex flex-col items-center justify-center'><h1 class='text-5xl font-bold mb-4 text-center'>Your Book Title</h1><h2 class='text-3xl text-center'>By Author Name</h2></div></div>",
+    "imageUrl": "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2730&q=80"
+  },
+  {
+    "name": "Table of Contents",
+    "type": "toc",
+    "content": "<div class='p-8' style='width: 100%; height: 100%; overflow-y: auto; padding: 40px;'><h1 class='text-3xl font-bold mb-6'>Table of Contents</h1><ul class='space-y-2'><li class='flex justify-between'><span>Chapter 1: Introduction</span><span>1</span></li><li class='flex justify-between'><span>Chapter 2: Main Content</span><span>15</span></li><li class='flex justify-between'><span>Chapter 3: Conclusion</span><span>30</span></li></ul></div>",
+    "imageUrl": "https://images.unsplash.com/photo-1553729459-efe14ef6055d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"
+  },
+  {
+    "name": "Text Chapter",
+    "type": "text",
+    "content": "<div class='p-8' style='width: 100%; height: 100%; overflow-y: auto; padding: 40px;'><h2 class='text-2xl font-bold mb-4'>Chapter Title</h2><p class='mb-4'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p></div>",
+    "imageUrl": "https://images.unsplash.com/photo-1455390582262-044cdead277a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2073&q=80"
+  },
+  {
+    "name": "Image Gallery",
+    "type": "image",
+    "content": "<div class='p-8' style='width: 100%; height: 100%; overflow-y: auto; padding: 40px;'><h2 class='text-2xl font-bold mb-4'>Image Gallery</h2><div class='grid grid-cols-2 gap-4'><img src='https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80' alt='Nature 1' class='w-full h-auto'><img src='https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2074&q=80' alt='Nature 2' class='w-full h-auto'><img src='https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2074&q=80' alt='Nature 3' class='w-full h-auto'><img src='https://images.unsplash.com/photo-1501854140801-50d01698950b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2075&q=80' alt='Nature 4' class='w-full h-auto'></div></div>",
+    "imageUrl": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"
+  },
+  {
+    "name": "Video Chapter",
+    "type": "video",
+    "content": "<div class='p-8' style='width: 100%; height: 100%; overflow-y: auto; padding: 40px;'><h2 class='text-2xl font-bold mb-4'>Video Chapter</h2><div class='aspect-w-16 aspect-h-9 mb-4'><iframe src='https://www.youtube.com/embed/dQw4w9WgXcQ' frameborder='0' allow='autoplay; encrypted-media' allowfullscreen class='w-full h-full'></iframe></div><p class='mt-4'>Video description or additional text can go here.</p></div>",
+    "imageUrl": "https://images.unsplash.com/photo-1536240478700-b869070f9279?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"
+  }
+]
