@@ -83,13 +83,23 @@ The **eBook SaaS Application** is a dynamic, interactive platform for creating, 
 ### **Project Structure**
 
 ```bash
-├── components/         # Reusable UI components
-├── pages/              # Next.js pages
-├── public/             # Static files (images, icons, etc.)
-├── styles/             # Tailwind CSS configuration and styles
-├── utils/              # Utility functions
-├── package.json        # Node.js dependencies and scripts
-└── README.md           # Project overview and installation instructions
+src/
+├── app/
+│   ├── page.tsx (Landing page)
+│   ├── dashboard/
+│   │   └── page.tsx
+│   └── builder/
+│       └── page.tsx
+├── components/
+└── lib/
+    └── builder/
+        └── src/
+            ├── components/
+            │   ├── TopBar.tsx
+            │   ├── LeftSideMenu/
+            │   ├── Canvas.tsx
+            │   └── ...
+            └── index.tsx
 ```
 
 ---
