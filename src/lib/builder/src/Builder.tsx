@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useCallback } from 'react';
 import TopBar from './components/TopBar';
 import LeftSideMenu from './components/LeftSideMenu/LeftSideMenu';
