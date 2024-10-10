@@ -89,7 +89,12 @@ const Canvas: React.FC<CanvasProps> = ({
           ))}
         </div>
       </div>
-      <ZoomToolbar zoom={zoom} onZoom={setZoom} />
+      <ZoomToolbar
+          zoom={zoom}
+          onZoom={setZoom}
+          onPageNext={() => {}}
+          onPagePrevious={() => {}}
+      />
     </div>
   );
 };

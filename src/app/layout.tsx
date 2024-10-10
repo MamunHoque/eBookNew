@@ -1,24 +1,18 @@
-// app/layout.tsx
-import type { Metadata } from "next";
+// src/app/builder/layout.tsx
 import { Inter } from "next/font/google";
-import "../styles/globals.css";
+import "../styles/globals.css"; // Import your global styles
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-    title: "eBook Builder",
-    description: "Create and design eBooks with ease",
-};
-
-export default function RootLayout({
-                                       children,
-                                   }: {
+export default function BuilderLayout({
+                                          children,
+                                      }: {
     children: React.ReactNode;
 }) {
     return (
         <html lang="en">
         <body className={inter.className}>
-        {children} {/* No ThemeProvider here */}
+        {children}
         </body>
         </html>
     );
