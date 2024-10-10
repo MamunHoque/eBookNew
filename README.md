@@ -12,7 +12,7 @@ Here is the updated **README file** with a placeholder for the screenshot and a 
 The **eBook SaaS Application** is a dynamic, interactive platform for creating, editing, and publishing ebooks. Built using **React** and **Next.js**, the application provides a no-code solution for users to design and manage multi-page ebooks with rich media and advanced layout features.
 
 ---
-![Project Screenshot](./demo.png)
+![Project Screenshot](./public/demo.png)
 
 ---
 

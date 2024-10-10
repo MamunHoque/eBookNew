@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Copy, Trash2 } from 'lucide-react';
-import { Page } from '../../types';
+import { Page } from '../types';
 
 interface RightSidebarProps {
   pages: Page[];

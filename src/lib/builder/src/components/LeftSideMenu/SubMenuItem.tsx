@@ -2,7 +2,6 @@ import React from 'react';
 import { Element } from '../../types';
 import { Category } from './menuData';
 import ConfirmationModal from '../ConfirmationModal';
-import { Square, Type, Image, LineChart, Map, Play, QrCode, Video, CheckSquare, List } from 'lucide-react';
 
 interface SubMenuItemProps {
   item: any;

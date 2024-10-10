@@ -2,12 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import TopBar from './components/TopBar';
 import LeftSideMenu from './components/LeftSideMenu/LeftSideMenu';
 import Canvas from './components/Canvas';
-import RightSidebar from './components/RightSidebar/RightSidebar';
+import RightSidebar from './components/RightSidebar';
 import ViewSourceModal from './components/ViewSourceModal';
 import PreviewModal from './components/PreviewModal';
 import Loader from './components/Loader';
 import { Element, Page } from './types';
 import { initDB, savePages, getPages } from './utils/indexedDB';
+import './builder.css';
+import { ThemeProvider } from './context/ThemeContext';
 
 export default function Builder() {
     const [pages, setPages] = useState<Page[]>([{ pageNumber: 1, content: '[]' }]);
@@ -121,62 +123,66 @@ export default function Builder() {
     }
 
     return (
-        <div className="flex h-screen">
-            <LeftSideMenu
-                addElement={handleAddElement}
-                setTemplateContent={setTemplateContent}
-                isCanvasEmpty={elements.length === 0}
-                canvasSize={canvasSize}
-            />
-            <div className="flex flex-col flex-1">
-                <TopBar
-                    selectedElement={selectedElement}
-                    updateElement={handleUpdateElement}
-                    undo={() => {}}
-                    redo={() => {}}
-                    canUndo={false}
-                    canRedo={false}
-                    generateSourceCode={() => ''}
-                    onPageSizeChange={handlePageSizeChange}
+        <ThemeProvider>
+            <div className="flex h-screen">
+                <LeftSideMenu
+                    addElement={handleAddElement}
+                    setTemplateContent={setTemplateContent}
+                    isCanvasEmpty={elements.length === 0}
                     canvasSize={canvasSize}
-                    elements={elements}
-                    onViewSourceCode={() => setIsViewSourceModalOpen(true)}
-                    onPreview={() => setIsPreviewModalOpen(true)}
                 />
-                <div className="flex flex-1 overflow-hidden">
-                    <Canvas
-                        elements={elements}
-                        updateElement={handleUpdateElement}
-                        deleteElement={handleDeleteElement}
-                        setSelectedElement={setSelectedElement}
+                <div className="flex flex-col flex-1">
+                    <TopBar
                         selectedElement={selectedElement}
+                        updateElement={handleUpdateElement}
+                        undo={() => {
+                        }}
+                        redo={() => {
+                        }}
+                        canUndo={false}
+                        canRedo={false}
+                        generateSourceCode={() => ''}
+                        onPageSizeChange={handlePageSizeChange}
                         canvasSize={canvasSize}
-                        zoom={zoom}
-                        setZoom={setZoom}
+                        elements={elements}
+                        onViewSourceCode={() => setIsViewSourceModalOpen(true)}
+                        onPreview={() => setIsPreviewModalOpen(true)}
                     />
-                    <RightSidebar
-                        pages={pages}
-                        currentPage={currentPage}
-                        setCurrentPage={setCurrentPage}
-                        addNewPage={handleAddPage}
-                        duplicatePage={handleDuplicatePage}
-                        deletePage={handleDeletePage}
-                    />
+                    <div className="flex flex-1 overflow-hidden">
+                        <Canvas
+                            elements={elements}
+                            updateElement={handleUpdateElement}
+                            deleteElement={handleDeleteElement}
+                            setSelectedElement={setSelectedElement}
+                            selectedElement={selectedElement}
+                            canvasSize={canvasSize}
+                            zoom={zoom}
+                            setZoom={setZoom}
+                        />
+                        <RightSidebar
+                            pages={pages}
+                            currentPage={currentPage}
+                            setCurrentPage={setCurrentPage}
+                            addNewPage={handleAddPage}
+                            duplicatePage={handleDuplicatePage}
+                            deletePage={handleDeletePage}
+                        />
+                    </div>
                 </div>
+                <ViewSourceModal
+                    isOpen={isViewSourceModalOpen}
+                    onClose={() => setIsViewSourceModalOpen(false)}
+                    elements={elements}
+                    canvasSize={canvasSize}
+                />
+                <PreviewModal
+                    isOpen={isPreviewModalOpen}
+                    onClose={() => setIsPreviewModalOpen(false)}
+                    pages={pages}
+                    currentPage={currentPage}
+                    canvasSize={canvasSize}
+                />
             </div>
-            <ViewSourceModal
-                isOpen={isViewSourceModalOpen}
-                onClose={() => setIsViewSourceModalOpen(false)}
-                elements={elements}
-                canvasSize={canvasSize}
-            />
-            <PreviewModal
-                isOpen={isPreviewModalOpen}
-                onClose={() => setIsPreviewModalOpen(false)}
-                pages={pages}
-                currentPage={currentPage}
-                canvasSize={canvasSize}
-            />
-        </div>
+        </ThemeProvider>
     );
 }

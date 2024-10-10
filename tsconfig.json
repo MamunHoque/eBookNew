@@ -9,9 +9,9 @@
     }
   ],
   "compilerOptions": {
-    "baseUrl": ".", // Ensures relative paths are based from the root directory
+    "baseUrl": ".",
     "paths": {
-      "lib/*": ["lib/*"] // Adds an alias for lib directory
+      "lib/*": ["lib/*"]
     },
     "lib": [
       "dom",

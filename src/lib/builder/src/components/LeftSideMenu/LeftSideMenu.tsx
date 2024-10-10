@@ -60,7 +60,7 @@ const LeftSideMenu: React.FC<LeftSideMenuProps> = ({
     <div className="flex h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
       <div className="w-16 h-full flex flex-col border-r border-gray-200 dark:border-gray-700">
         <div className="flex justify-center items-center h-14 border-b border-gray-200 dark:border-gray-700">
-          <FileText size={24} className="text-blue-500" />
+          <FileText size={32} className="text-blue-500" />
         </div>
         <MainMenu
           categories={allCategories}

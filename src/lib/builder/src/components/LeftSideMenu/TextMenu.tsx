@@ -52,12 +52,13 @@ const TextMenu: React.FC<TextMenuProps> = ({ addElement, onClose }) => {
         <div className="space-y-2">
           {textElements.map((element) => (
               <button
-                  key={element.name}
-                  className={`w-full text-left p-2 ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} rounded transition-colors`}
-              onClick={() => handleAddTextElement(element.tag)}
-            >
-              {element.name}
-            </button>
+                    key={element.name}
+                    className={`w-full py-3 px-4 flex items-center space-x-3 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer text-left p-2 ${isDark ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} rounded transition-colors`}
+                    onClick={() => handleAddTextElement(element.tag)}
+                >
+                  {element.name}
+                </button>
+
           ))}
         </div>
       </div>
