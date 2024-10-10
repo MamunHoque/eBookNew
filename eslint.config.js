@@ -26,6 +26,3 @@ export default tseslint.config(
     },
   },
 )
-
-
-ESLint error: can not use import statement outside a module
