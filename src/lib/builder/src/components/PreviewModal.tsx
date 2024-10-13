@@ -1,4 +1,7 @@
-import React, {useRef, useEffect, useState, useContext} from 'react';
+// PreviewModal.jsx
+"use client";
+
+import React, { useRef, useEffect, useState, useContext } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Element, Page } from '../types';
 import { ThemeContext } from '../context/ThemeContext';
@@ -9,40 +12,25 @@ interface PreviewModalProps {
   pages: Page[];
   currentPage: number;
   canvasSize: { width: number; height: number };
+  elements: Element[]; // Add this line
 }
 
-const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose, pages, currentPage, canvasSize }) => {
+const PreviewModal: React.FC<PreviewModalProps> = ({
+                                                     isOpen,
+                                                     onClose,
+                                                     pages,
+                                                     currentPage,
+                                                     canvasSize,
+                                                     elements, // Add this line
+                                                   }) => {
   const previewRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [displayPage, setDisplayPage] = useState(currentPage);
   const { isDark } = useContext(ThemeContext);
 
-  useEffect(() => {
-    if (isOpen && previewRef.current) {
-      const containerWidth = previewRef.current.clientWidth - 80;
-      const containerHeight = previewRef.current.clientHeight - 80;
-      const pageAspectRatio = canvasSize.width / canvasSize.height;
-      const containerAspectRatio = containerWidth / containerHeight;
-
-      let newScale;
-      if (containerAspectRatio > pageAspectRatio) {
-        newScale = containerHeight / (canvasSize.height * 96);
-      } else {
-        newScale = containerWidth / (canvasSize.width * 96);
-      }
-
-      setScale(Math.min(newScale, 1));
-    }
-  }, [canvasSize, isOpen]);
-
-  useEffect(() => {
-    setDisplayPage(currentPage);
-  }, [currentPage]);
+  // ... existing useEffect hooks ...
 
   if (!isOpen) return null;
-
-  const currentPageData = pages.find(page => page.pageNumber === displayPage);
-  const elements: Element[] = currentPageData ? JSON.parse(currentPageData.content) : [];
 
   const pageStyle: React.CSSProperties = {
     width: `${canvasSize.width}in`,
@@ -53,7 +41,7 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose, pages, cur
     overflow: 'hidden',
     transform: `scale(${scale})`,
     transformOrigin: 'top left',
-    color: 'black', // Ensure text color is black for visibility
+    color: 'black',
   };
 
   const containerStyle: React.CSSProperties = {
@@ -79,10 +67,8 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose, pages, cur
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className={`bg-white dark:bg-gray-800 rounded-lg w-3/4 max-w-3xl max-h-[90vh] flex flex-col ${isDark ? 'dark' : ''}`}>
           <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
-
             <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Preview - Page {displayPage}</h2>
-            <button onClick={onClose}
-                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
               <X size={24}/>
             </button>
           </div>
@@ -94,33 +80,33 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose, pages, cur
                       style={{
                         position: 'absolute',
                         left: `${element.left}%`,
-                  top: `${element.top}%`,
-                  width: `${element.width}%`,
-                  height: `${element.height}%`,
-                  zIndex: element.zIndex,
-                  ...element.style, // Apply any custom styles from the element
-                }}
-                dangerouslySetInnerHTML={{ __html: element.content }}
-              />
-            ))}
+                        top: `${element.top}%`,
+                        width: `${element.width}%`,
+                        height: `${element.height}%`,
+                        zIndex: element.zIndex,
+                        ...element.style,
+                      }}
+                      dangerouslySetInnerHTML={{ __html: element.content }}
+                  />
+              ))}
+            </div>
+            <button
+                onClick={handlePrevPage}
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-700 p-2 rounded-full shadow-md"
+                disabled={displayPage === 1}
+            >
+              <ChevronLeft size={24} className="text-gray-600 dark:text-gray-300" />
+            </button>
+            <button
+                onClick={handleNextPage}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-700 p-2 rounded-full shadow-md"
+                disabled={displayPage === pages.length}
+            >
+              <ChevronRight size={24} className="text-gray-600 dark:text-gray-300" />
+            </button>
           </div>
-          <button
-            onClick={handlePrevPage}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-700 p-2 rounded-full shadow-md"
-            disabled={displayPage === 1}
-          >
-            <ChevronLeft size={24} className="text-gray-600 dark:text-gray-300" />
-          </button>
-          <button
-            onClick={handleNextPage}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-700 p-2 rounded-full shadow-md"
-            disabled={displayPage === pages.length}
-          >
-            <ChevronRight size={24} className="text-gray-600 dark:text-gray-300" />
-          </button>
         </div>
       </div>
-    </div>
   );
 };
 

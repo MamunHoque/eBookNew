@@ -1,11 +1,12 @@
-// src/app/builder/page.tsx
+"use client";
+
 import React from 'react';
 import Builder from '../../lib/builder/src/Builder';
 
 export default function BuilderPage() {
-    return (
-        <div className="min-h-screen">
-            <Builder />
-        </div>
-    );
+  return (
+    <div className="h-screen">
+      <Builder />
+    </div>
+  );
 }
