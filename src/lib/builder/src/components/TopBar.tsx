@@ -73,8 +73,8 @@ const TopBar: React.FC<TopBarProps> = ({
         <button onClick={() => handleAlignChange('right')} className={buttonClass}><AlignRight size={18} className={iconClass} /></button>
       </div>
       <div className="flex items-center space-x-2">
-        <button onClick={undo} disabled={!canUndo} className={`${buttonClass} disabled:opacity-50`}><Undo size={18} className={iconClass} /></button>
-        <button onClick={redo} disabled={!canRedo} className={`${buttonClass} disabled:opacity-50`}><Redo size={18} className={iconClass} /></button>
+        <button onClick={undo} disabled={!canUndo} className={`${buttonClass} ${!canUndo && 'opacity-50 cursor-not-allowed'}`}><Undo size={18} className={iconClass} /></button>
+        <button onClick={redo} disabled={!canRedo} className={`${buttonClass} ${!canRedo && 'opacity-50 cursor-not-allowed'}`}><Redo size={18} className={iconClass} /></button>
         <ThemeToggle />
         <button onClick={onViewSourceCode} className={buttonClass}><Code size={18} className={iconClass} /></button>
         <button onClick={onPreview} className={buttonClass}><Eye size={18} className={iconClass} /></button>

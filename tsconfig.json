@@ -11,7 +11,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "lib/*": ["lib/*"]
+      "lib/*": [
+        "lib/*"
+      ]
     },
     "lib": [
       "dom",
@@ -33,7 +35,8 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",

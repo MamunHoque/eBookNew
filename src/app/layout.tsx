@@ -1,24 +1,22 @@
-// app/layout.tsx
-import type { Metadata } from "next";
+// src/app/layout.tsx
 import { Inter } from "next/font/google";
 import "../styles/globals.css";
+import { AuthProvider } from '../context/AuthContext'; // Ensure correct path
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-    title: "eBook Builder",
-    description: "Create and design eBooks with ease",
+export const metadata = {
+    title: "Your App Title",
+    description: "Your App Description",
 };
 
-export default function RootLayout({
-                                       children,
-                                   }: {
-    children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en">
         <body className={inter.className}>
-        {children} {/* No ThemeProvider here */}
+        <AuthProvider>
+            {children}
+        </AuthProvider>
         </body>
         </html>
     );

@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { FileText } from 'lucide-react';
+import { FileText, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 import { Element } from '../../types';
 import MainMenu from './MainMenu';
 import SubMenu from './SubMenu';
@@ -67,6 +68,14 @@ const LeftSideMenu: React.FC<LeftSideMenuProps> = ({
           selectedCategory={selectedCategory}
           onCategoryClick={handleCategoryClick}
         />
+        {/* Add the back button in the footer area */}
+        <div className="mt-auto p-2">
+          <Link href="/dashboard">
+            <button className="w-full flex items-center justify-center p-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+              <ArrowLeft size={20} />
+            </button>
+          </Link>
+        </div>
       </div>
       {renderSubMenu()}
     </div>

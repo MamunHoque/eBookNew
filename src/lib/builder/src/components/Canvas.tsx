@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useRef } from 'react';
 import CanvasElement from './CanvasElement';
 import { Element } from '../types';
@@ -36,7 +38,7 @@ const Canvas: React.FC<CanvasProps> = ({
     width: `${canvasSize.width * 96}px`,
     height: `${canvasSize.height * 96}px`,
     backgroundColor: 'white',
-    color: 'black', // Ensure text is black for contrast
+    color: 'black',
     boxShadow: '0 0 10px rgba(0,0,0,0.1)',
     transform: `scale(${zoom / 100})`,
     transformOrigin: 'top left',
@@ -89,7 +91,12 @@ const Canvas: React.FC<CanvasProps> = ({
           ))}
         </div>
       </div>
-      <ZoomToolbar zoom={zoom} onZoom={setZoom} />
+      <ZoomToolbar
+        zoom={zoom}
+        onZoom={setZoom}
+        onPageNext={() => {}}
+        onPagePrevious={() => {}}
+      />
     </div>
   );
 };

@@ -1,19 +1,25 @@
-// src/app/page.tsx
-import React from 'react';
-import Link from 'next/link';
+'use client';
 
-export default function LandingPage() {
+import Navigation from './Navigation';
+import HeroSection from './HeroSection';
+import FeatureSection from './FeatureSection';
+import TestimonialSection from './TestimonialSection';
+import PricingSection from './PricingSection';
+import Footer from './Footer';
+
+const LandingPage = () => {
     return (
-        <div className="min-h-screen flex flex-col justify-center items-center">
-            <h1 className="text-4xl font-bold mb-8">Welcome to the Builder App</h1>
-            <div className="flex space-x-4">
-                <Link href="/builder" className="px-4 py-2 bg-blue-500 text-white rounded">
-                    Go to Builder
-                </Link>
-                <Link href="/dashboard" className="px-4 py-2 bg-green-500 text-white rounded">
-                    Go to Dashboard
-                </Link>
-            </div>
+        <div className="flex flex-col min-h-screen bg-gray-900 text-white">
+            <Navigation />
+            <main className="flex-grow">
+                <HeroSection />
+                <FeatureSection />
+                <TestimonialSection />
+                <PricingSection />
+            </main>
+            <Footer />
         </div>
     );
-}
+};
+
+export default LandingPage;
