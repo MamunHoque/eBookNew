@@ -1,5 +1,3 @@
-import React from 'react';
-
 import MainLayout from '../../components/Layouts/MainLayout';
 import {ChevronDown} from 'lucide-react';
 

@@ -2,8 +2,9 @@
 import React from 'react';
 
 const testimonials = [
-    { name: 'John Doe', photo: '/path/to/john.jpg', quote: 'This eBook builder has revolutionized my publishing process!' },
-    { name: 'Jane Smith', photo: '/path/to/jane.jpg', quote: 'I love how easy it is to create interactive content with this tool.' },
+    { name: 'John Doe', photo: '/facebook.jpg', quote: 'This eBook builder has revolutionized my publishing process!' },
+    { name: 'Jane Smith', photo: '/facebook.jpg', quote: 'I love how easy it is to create interactive content with this tool.' },
+    { name: 'Jane Smith', photo: '/facebook.jpg', quote: 'I love how easy it is to create interactive content with this tool.' },
     // Add more testimonials
 ];
 

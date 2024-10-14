@@ -1,11 +1,11 @@
 import React from 'react';
 import Pricing from '../../components/Pricing';
-import Layout from '../../components/Layout';
+import MainLayout from '../../components/Layouts/MainLayout';
 
 export default function PricingPage() {
   return (
-    <Layout>
+    <MainLayout>
       <Pricing />
-    </Layout>
+    </MainLayout>
   );
 }

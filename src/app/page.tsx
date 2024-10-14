@@ -1,7 +1,5 @@
-// LandingPage.jsx
 'use client';
 
-import React from 'react';
 import Navigation from './Navigation';
 import HeroSection from './HeroSection';
 import FeatureSection from './FeatureSection';
