@@ -272,6 +272,7 @@ const Builder: React.FC = () => {
                     onClose={() => setIsViewSourceModalOpen(false)}
                     elements={elements}
                     canvasSize={canvasSize}
+                    pages={pages}
                 />
                 <PreviewModal
                     isOpen={isPreviewModalOpen}
