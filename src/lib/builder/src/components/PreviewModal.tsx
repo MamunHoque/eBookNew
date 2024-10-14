@@ -11,7 +11,7 @@ interface PreviewModalProps {
   pages: Page[];
   currentPage: number;
   canvasSize: { width: number; height: number };
-  elements: Element[]; // The elements of the current page
+  elements: Element[];
 }
 
 const PreviewModal: React.FC<PreviewModalProps> = ({
@@ -20,15 +20,15 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
                                                      pages,
                                                      currentPage,
                                                      canvasSize,
-                                                     elements, // The elements for the initial current page
+                                                     elements,
                                                    }) => {
   const previewRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [displayPage, setDisplayPage] = useState(currentPage);
   const [pageElements, setPageElements] = useState<Element[]>(elements);
   const { isDark } = useContext(ThemeContext);
+  const [needsScroll, setNeedsScroll] = useState(false);
 
-  // Update the elements based on the currently displayed page
   useEffect(() => {
     const currentPageContent = pages.find((page) => page.pageNumber === displayPage);
     if (currentPageContent) {
@@ -36,6 +36,28 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
       setPageElements(newElements);
     }
   }, [displayPage, pages]);
+
+  // Dynamically adjust the scale based on screen size
+  useEffect(() => {
+    if (previewRef.current) {
+      const containerWidth = previewRef.current.offsetWidth;
+      const containerHeight = previewRef.current.offsetHeight;
+
+      const pageWidth = canvasSize.width * 96; // Convert inches to pixels (1in = 96px)
+      const pageHeight = canvasSize.height * 96;
+
+      const widthScale = containerWidth / pageWidth;
+      const heightScale = containerHeight / pageHeight;
+
+      // Set the scale to the smaller of the two scales to fit the page inside the modal
+      const newScale = Math.min(widthScale, heightScale, 1); // Ensure scaling doesn't exceed 1
+      setScale(newScale);
+
+      // Determine if we need scrollbars (if the page is larger than the container)
+      const needsScrollbars = pageWidth * newScale > containerWidth || pageHeight * newScale > containerHeight;
+      setNeedsScroll(needsScrollbars);
+    }
+  }, [canvasSize, isOpen]);
 
   if (!isOpen) return null;
 
@@ -47,7 +69,7 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
     position: 'relative',
     overflow: 'hidden',
     transform: `scale(${scale})`,
-    transformOrigin: 'top left',
+    transformOrigin: 'center center', // Center both horizontally and vertically
     color: 'black',
   };
 
@@ -58,8 +80,8 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
     boxSizing: 'border-box',
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'flex-start',
-    overflow: 'auto',
+    alignItems: 'center', // Center vertically
+    overflow: needsScroll ? 'auto' : 'hidden', // Hide scrollbars if not needed
   };
 
   const handlePrevPage = () => {
