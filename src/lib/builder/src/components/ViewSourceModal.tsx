@@ -25,32 +25,30 @@ const ViewSourceModal: React.FC<ViewSourceModalProps> = ({
     if (!isOpen) return null;
 
     // Function to generate the HTML for each page
-    const generatePageHtml = (page: Page) => {
-        const elementsHtml = JSON.parse(page.content).map((element: Element) => {
-            const style = `
-      left: ${element.left}%;
-      top: ${element.top}%;
+  const generatePageHtml = (page: Page) => {
+    const elementsHtml = JSON.parse(page.content).map((element: Element) => {
+      const style = `
       width: ${element.width}%;
       height: ${element.height}%;
-      z-index: ${element.zIndex};
       ${Object.entries(element.style || {})
-                .map(([key, value]) => `${key}: ${value};`)
-                .join(' ')}
+          .map(([key, value]) => `${key}: ${value};`)
+          .join(' ')}
     `;
 
-            return `<${element.type} style="${style.trim()}">${element.content}</${element.type}>`;
-        }).join('\n    ');
+      return `<${element.type} style="${style.trim()}">${element.content}</${element.type}>`;
+    }).join('\n    ');
 
-        return `
+    return `
     <div class="page">
       <div class="page-content">
         ${elementsHtml}
       </div>
     </div>`;
-    };
+  };
 
 
-    // Function to generate source code for all pages
+
+  // Function to generate source code for all pages
   const generateSourceCode = () => {
     const pagesHtml = pages.map((page, index) => {
       return `<!-- Page ${index + 1} -->\n${generatePageHtml(page)}`;
@@ -80,15 +78,14 @@ const ViewSourceModal: React.FC<ViewSourceModalProps> = ({
         overflow: hidden;
       }
       .page-content {
-        position: relative;
-        padding: 40px; /* Equal padding on all sides */
+        padding: 40px; /* Ensure equal padding */
         height: 100%;
-        box-sizing: border-box; /* Ensure padding doesn't cause overflow */
+        box-sizing: border-box; /* Ensure padding fits within the page */
       }
       .grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr); /* 2-column grid */
-        gap: 16px; /* Gap between images */
+        gap: 16px; /* Add gap between grid items */
       }
       img {
         width: 100%;
@@ -103,8 +100,7 @@ const ViewSourceModal: React.FC<ViewSourceModalProps> = ({
   };
 
 
-
-    const sourceCode = generateSourceCode();
+  const sourceCode = generateSourceCode();
 
     // Copy the source code to clipboard
     const handleCopy = () => {
