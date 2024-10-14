@@ -1,8 +1,8 @@
 'use client';
-import React from 'react';
+
 import Link from 'next/link';
 
-const HeroSection = () => {
+const HeroSection: React.FC = () => {
     return (
         <section className="bg-gray-800 py-20 text-center">
             <div className="container mx-auto px-4">

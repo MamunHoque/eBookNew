@@ -1,9 +1,21 @@
 'use client';
-import React from 'react';
+
 import Link from 'next/link';
 import { Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 
-const Footer = () => {
+interface SocialLink {
+    href: string;
+    Icon: React.FC<{ size: number }>;
+}
+
+const socialLinks: SocialLink[] = [
+    { href: '#', Icon: Facebook },
+    { href: '#', Icon: Twitter },
+    { href: '#', Icon: Instagram },
+    { href: '#', Icon: Linkedin },
+];
+
+const Footer: React.FC = () => {
     return (
         <footer className="bg-gray-800 py-8">
             <div className="container mx-auto px-4">
@@ -13,18 +25,16 @@ const Footer = () => {
                         <p className="text-gray-400">Create stunning interactive eBooks with ease</p>
                     </div>
                     <div className="flex space-x-4 mb-4 md:mb-0">
-                        <a href="#" className="text-green-500 hover:text-green-400 transition-colors">
-                            <Facebook size={24} />
-                        </a>
-                        <a href="#" className="text-green-500 hover:text-green-400 transition-colors">
-                            <Twitter size={24} />
-                        </a>
-                        <a href="#" className="text-green-500 hover:text-green-400 transition-colors">
-                            <Instagram size={24} />
-                        </a>
-                        <a href="#" className="text-green-500 hover:text-green-400 transition-colors">
-                            <Linkedin size={24} />
-                        </a>
+                        {socialLinks.map((social, index) => (
+                            <a
+                                key={index}
+                                href={social.href}
+                                className="text-green-500 hover:text-green-400 transition-colors"
+                                aria-label={social.href}
+                            >
+                                <social.Icon size={24} />
+                            </a>
+                        ))}
                     </div>
                     <nav>
                         <ul className="flex flex-wrap justify-center md:justify-end space-x-4">

@@ -1,5 +1,4 @@
 'use client';
-import React from 'react';
 
 const pricingPlans = [
     { name: 'Basic', price: '$9.99/month', features: ['Feature 1', 'Feature 2', 'Feature 3'] },
