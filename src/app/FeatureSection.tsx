@@ -1,15 +1,21 @@
 'use client';
-import React from 'react';
-import { Edit, Users } from 'lucide-react';
 
-const features = [
+import { Icon as LucideIcon, Edit, Users } from 'lucide-react';
+
+interface Feature {
+    Icon: LucideIcon;
+    title: string;
+    description: string;
+}
+
+const features: Feature[] = [
     { Icon: Edit, title: 'Drag-and-Drop Editor', description: 'Easy-to-use interface for creating stunning eBooks' },
     { Icon: Edit, title: 'Multi-Format Export', description: 'Export to PDF, EPUB, HTML, and more' },
     { Icon: Users, title: 'Real-Time Collaboration', description: 'Work together with your team in real-time' },
     { Icon: Edit, title: 'Interactive Content', description: 'Add quizzes, videos, and more to engage readers' },
 ];
 
-const FeatureSection = () => {
+const FeatureSection: React.FC = () => {
     return (
         <section className="py-20">
             <div className="container mx-auto px-4">

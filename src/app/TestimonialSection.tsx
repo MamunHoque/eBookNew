@@ -1,14 +1,20 @@
 'use client';
-import React from 'react';
 
-const testimonials = [
+
+interface Testimonial {
+    name: string;
+    photo: string;
+    quote: string;
+}
+
+const testimonials: Testimonial[] = [
     { name: 'John Doe', photo: '/facebook.jpg', quote: 'This eBook builder has revolutionized my publishing process!' },
     { name: 'Jane Smith', photo: '/facebook.jpg', quote: 'I love how easy it is to create interactive content with this tool.' },
     { name: 'Jane Smith', photo: '/facebook.jpg', quote: 'I love how easy it is to create interactive content with this tool.' },
     // Add more testimonials
 ];
 
-const TestimonialSection = () => {
+const TestimonialSection: React.FC = () => {
     return (
         <section className="bg-gray-800 py-20">
             <div className="container mx-auto px-4">
