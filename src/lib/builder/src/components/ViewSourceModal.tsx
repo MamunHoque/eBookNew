@@ -51,12 +51,12 @@ const ViewSourceModal: React.FC<ViewSourceModalProps> = ({
 
 
     // Function to generate source code for all pages
-    const generateSourceCode = () => {
-        const pagesHtml = pages.map((page, index) => {
-            return `<!-- Page ${index + 1} -->\n${generatePageHtml(page)}`;
-        }).join('\n\n'); // Add space between page sections in the code
+  const generateSourceCode = () => {
+    const pagesHtml = pages.map((page, index) => {
+      return `<!-- Page ${index + 1} -->\n${generatePageHtml(page)}`;
+    }).join('\n\n'); // Add space between page sections in the code
 
-        return `
+    return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -81,8 +81,9 @@ const ViewSourceModal: React.FC<ViewSourceModalProps> = ({
       }
       .page-content {
         position: relative;
-        padding: 40px;
+        padding: 40px; /* Equal padding on all sides */
         height: 100%;
+        box-sizing: border-box; /* Ensure padding doesn't cause overflow */
       }
       .grid {
         display: grid;
@@ -99,7 +100,8 @@ const ViewSourceModal: React.FC<ViewSourceModalProps> = ({
   ${pagesHtml}
 </body>
 </html>`.trim();
-    };
+  };
+
 
 
     const sourceCode = generateSourceCode();
