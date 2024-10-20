@@ -1,5 +1,6 @@
 // builderMethods.js
 import { savePages } from './utils/indexedDB';
+import {useCallback} from "react";
 
 /**
  * Adds a new version of elements to history for undo/redo functionality.
@@ -130,15 +131,26 @@ export const handleDeletePage = async (
  * Switches the current page to a different one by saving the current page's content and loading the content of the new page.
  */
 export const switchPage = async (
-    pageNumber, currentPage, elements, pages, setPages, setCurrentPage, setElements, setHistory, setHistoryIndex
+    pageNumber,
+    currentPage,
+    elements,
+    pages,
+    setPages,
+    setCurrentPage,
+    setElements,
+    setHistory,
+    setHistoryIndex
 ) => {
+    // Save the current page content first
     const updatedPages = pages.map((page) =>
         page.pageNumber === currentPage ? { ...page, content: JSON.stringify(elements) } : page
     );
-    setPages(updatedPages);
-    await savePages(updatedPages);
 
-    const nextPage = pages.find((page) => page.pageNumber === pageNumber);
+    // Update the pages state immediately
+    setPages(updatedPages);
+
+    // Now switch to the new page
+    const nextPage = updatedPages.find((page) => page.pageNumber === pageNumber);
     if (nextPage) {
         const newElements = JSON.parse(nextPage.content);
         setElements(newElements);
@@ -146,8 +158,14 @@ export const switchPage = async (
         setHistoryIndex(0);
     }
 
+    // Set the current page after everything else
     setCurrentPage(pageNumber);
+
+    // Save pages to persist the state
+    await savePages(updatedPages);
 };
+
+
 
 /**
  * Sets template content for a page by adding HTML content as a new element and saving the page's updated state.

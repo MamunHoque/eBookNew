@@ -9,7 +9,7 @@ interface PreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   pages: Page[];
-  currentPage: number;
+  currentPage: number; // Ensure currentPage is passed in
   canvasSize: { width: number; height: number };
   elements: Element[];
 }
@@ -18,17 +18,25 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
                                                      isOpen,
                                                      onClose,
                                                      pages,
-                                                     currentPage,
+                                                     currentPage, // Accept the currentPage prop
                                                      canvasSize,
                                                      elements,
                                                    }) => {
   const previewRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
-  const [displayPage, setDisplayPage] = useState(currentPage);
+  const [displayPage, setDisplayPage] = useState(currentPage); // Initialize with currentPage
   const [pageElements, setPageElements] = useState<Element[]>(elements);
   const { isDark } = useContext(ThemeContext);
   const [needsScroll, setNeedsScroll] = useState(false);
 
+  // Sync displayPage with currentPage when the modal opens or when currentPage changes
+  useEffect(() => {
+    if (isOpen) {
+      setDisplayPage(currentPage); // Set displayPage to the currentPage when modal opens
+    }
+  }, [isOpen, currentPage]);
+
+  // Update the page elements when the displayPage changes
   useEffect(() => {
     const currentPageContent = pages.find((page) => page.pageNumber === displayPage);
     if (currentPageContent) {
@@ -96,7 +104,9 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className={`bg-white dark:bg-gray-800 rounded-lg w-3/4 max-w-3xl max-h-[90vh] flex flex-col ${isDark ? 'dark' : ''}`}>
           <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Preview - Page {displayPage}</h2>
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+              Preview - Page {displayPage}
+            </h2>
             <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
               <X size={24} />
             </button>
