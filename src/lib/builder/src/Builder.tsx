@@ -185,24 +185,28 @@ const Builder: React.FC = () => {
     );
 
     const setTemplateContent = useCallback(
-        (content: string) => {
+        async (content: string) => {
             try {
                 const parsedContent = JSON.parse(content);
                 setElements(parsedContent);
                 addToHistory(parsedContent);
+
+                // Save the updated content to IndexedDB
+                await savePages([{ pageNumber: currentPage, content: JSON.stringify(parsedContent) }]);
             } catch (error) {
+                // Assign a valid type from the available types
                 const newElement: {
                     top: number;
                     left: number;
                     width: number;
                     id: string;
-                    type: string;
+                    type: "text"; // Use a valid type like "text", "image", or "video"
                     content: string;
                     height: number;
-                    zIndex: number
+                    zIndex: number;
                 } = {
                     id: Date.now().toString(),
-                    type: 'div',
+                    type: "text", // Ensure this is a valid type for the Element interface
                     content: content,
                     left: 0,
                     top: 0,
@@ -210,12 +214,18 @@ const Builder: React.FC = () => {
                     height: 100,
                     zIndex: 1,
                 };
-                setElements([newElement]);
+
+                setElements([newElement]); // Update with the new element
                 addToHistory([newElement]);
+
+                // Save the new content to IndexedDB
+                await savePages([{ pageNumber: currentPage, content: JSON.stringify([newElement]) }]);
             }
         },
-        [addToHistory]
+        [addToHistory, currentPage] // Ensure the currentPage and addToHistory are dependencies
     );
+
+
 
     if (isLoading) {
         return <Loader />;
