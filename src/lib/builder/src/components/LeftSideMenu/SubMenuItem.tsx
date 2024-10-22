@@ -1,102 +1,129 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Element } from '../../types';
-import { Category } from './menuData';
+import { Crown } from 'lucide-react';
+import { Icon } from '@iconify/react';
 import ConfirmationModal from '../ConfirmationModal';
 
-interface SubMenuItem {
-    name: string;
-    imageUrl?: string;
-    content?: string;
-}
-
 interface SubMenuItemProps {
-    item: string | SubMenuItem;
-    category: Category;
-    addElement: (element: Element) => void;
-    setTemplateContent: (content: string) => void;
-    isCanvasEmpty: boolean;
+  item: {
+    icon: string;
+    name: string;
+    type: string;
+    content: string;
+    imageUrl?: string;
+    planType: string;
+    canvasAction: 'replace' | 'append';
+  };
+  addElement: (element: Element) => void;
+  setTemplateContent: (content: string) => void;
+  isCanvasEmpty: boolean;
+  canvasSize: { width: number; height: number };
+  isTemplate: boolean;
 }
 
 const SubMenuItem: React.FC<SubMenuItemProps> = ({
-                                                     item,
-                                                     category,
-                                                     addElement,
-                                                     setTemplateContent,
-                                                     isCanvasEmpty
-                                                 }) => {
-    const [isModalOpen, setIsModalOpen] = React.useState(false);
+  item,
+  addElement,
+  setTemplateContent,
+  isCanvasEmpty,
+  canvasSize,
+  isTemplate
+}) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleItemClick = () => {
-        if (category.name === 'Templates') {
-            if (isCanvasEmpty) {
-                setTemplateContent((item as SubMenuItem).content || '');
-            } else {
-                setIsModalOpen(true);
-            }
-        } else {
-            const content = getElementContent(typeof item === 'string' ? item : item.name);
-            addElement({
-                id: Date.now().toString(),
-                type: typeof item === 'string' ? item : item.name,
-                content: content,
-                left: 10,
-                top: 10,
-                width: 20,
-                height: 10,
-                zIndex: 1,
-            });
-        }
-    };
-
-    const handleConfirm = () => {
-        setTemplateContent((item as SubMenuItem).content || '');
-    };
-
-    const getElementContent = (elementType: string) => {
-        // Logic for content based on elementType
-    };
-
-    const getIcon = (item: string) => {
-        // Logic for returning an icon based on item
-    };
-
-    if (category.name === 'Templates') {
-        return (
-            <>
-                <div
-                    className="cursor-pointer hover:opacity-75 transition-opacity"
-                    onClick={handleItemClick}
-                >
-                    <img
-                        src={(item as SubMenuItem).imageUrl || ''}
-                        alt={(item as SubMenuItem).name}
-                        className="w-full h-auto rounded-md shadow-md"
-                    />
-                    <p className="mt-2 text-sm text-center text-gray-800 dark:text-gray-200">{(item as SubMenuItem).name}</p>
-                </div>
-                <ConfirmationModal
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    onConfirm={handleConfirm}
-                    message="This will replace your current content. Are you sure you want to continue?"
-                />
-            </>
-        );
+  const handleItemClick = () => {
+    if (isTemplate && item.canvasAction === 'replace' && !isCanvasEmpty) {
+      setIsModalOpen(true);
+    } else {
+      addItemToCanvas();
     }
+  };
 
-    return (
-        <div
-            className="w-full py-3 px-4 flex items-center space-x-3 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
-            onClick={handleItemClick}
-        >
-            <div className="text-gray-600 dark:text-gray-300">
-                {getIcon(typeof item === 'string' ? item : item.name)}
-            </div>
-            <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
-        {typeof item === 'string' ? item : item.name}
-      </span>
-        </div>
-    );
+  const addItemToCanvas = () => {
+    if (isTemplate) {
+      setTemplateContent(item.content);
+    } else {
+      const newElement: Element = {
+        id: Date.now().toString(),
+        type: item.type,
+        content: item.content,
+        left: 25, // Center horizontally
+        top: 25, // Center vertically
+        width: Math.min(60, getMinWidth(item.type)), // 50% of canvas width, but not smaller than minimum
+        height: Math.min(30, getMinHeight(item.type)), // 50% of canvas height, but not smaller than minimum
+        zIndex: 1,
+      };
+      addElement(newElement);
+    }
+  };
+
+  const getMinWidth = (type: string): number => {
+    switch (type) {
+      case 'heading':
+        return 30;
+      case 'text':
+        return 25;
+      case 'shape':
+        return 10;
+      case 'line':
+        return 20;
+      case 'interactive':
+        return 40;
+      default:
+        return 20;
+    }
+  };
+
+  const getMinHeight = (type: string): number => {
+    switch (type) {
+      case 'heading':
+        return 10;
+      case 'text':
+        return 20;
+      case 'shape':
+        return 10;
+      case 'line':
+        return 5;
+      case 'interactive':
+        return 30;
+      default:
+        return 15;
+    }
+  };
+
+  return (
+    <>
+      <div
+        className={`cursor-pointer p-2 rounded-lg transition-colors relative flex flex-col items-center justify-center shadow-md hover:shadow-lg ${
+          isTemplate
+            ? 'bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
+            : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+        }`}
+        onClick={handleItemClick}
+      >
+        {item.planType === 'Premium' && (
+          <Crown size={16} className="absolute top-1 right-1 text-yellow-500" />
+        )}
+        {isTemplate && item.imageUrl ? (
+          <img src={item.imageUrl} alt={item.name} className="w-full h-24 object-cover rounded-md mb-2" />
+        ) : (
+          <div className="w-12 h-12 flex items-center justify-center bg-white dark:bg-gray-800 rounded-full mb-2">
+            <Icon icon={item.icon} className="text-gray-600 dark:text-gray-300" width="24" height="24" />
+          </div>
+        )}
+        <span className="text-xs font-medium text-gray-800 dark:text-gray-200 text-center">{item.name}</span>
+      </div>
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={() => {
+          addItemToCanvas();
+          setIsModalOpen(false);
+        }}
+        message="This will replace your current content. Are you sure you want to continue?"
+      />
+    </>
+  );
 };
 
 export default SubMenuItem;

@@ -11,9 +11,8 @@ import { initDB, savePages, getPages } from './utils/indexedDB';
 import './builder.css';
 import { ThemeProvider } from './context/ThemeContext';
 
-// @ts-ignore
 import {
-    handleUpdateElement, handleAddElement, handleDeleteElement, handlePageSizeChange,
+    addToHistory, handleUpdateElement, handleAddElement, handleDeleteElement, handlePageSizeChange,
     handleUndo, handleRedo, handleAddPage, handleDuplicatePage, handleDeletePage, switchPage, setTemplateContent
 } from './builderMethods.js';
 
@@ -61,24 +60,48 @@ const Builder: React.FC = () => {
     const updateElement = useCallback(
         (updatedElement: Element) => {
             handleUpdateElement(updatedElement, setElements, setHistory, historyIndex, setHistoryIndex);
+            // Update the current page content and save pages
+            const updatedPages = pages.map(page => 
+                page.pageNumber === currentPage 
+                    ? { ...page, content: JSON.stringify(elements.map(el => el.id === updatedElement.id ? updatedElement : el)) }
+                    : page
+            );
+            setPages(updatedPages);
+            savePages(updatedPages);
         },
-        [historyIndex, setElements, setHistory, setHistoryIndex]
+        [historyIndex, setElements, setHistory, setHistoryIndex, pages, currentPage, elements]
     );
 
     // Callback to add a new element and update the history
     const addElement = useCallback(
         (newElement: Element) => {
             handleAddElement(newElement, setElements, setHistory, historyIndex, setHistoryIndex);
+            // Update the current page content and save pages
+            const updatedPages = pages.map(page => 
+                page.pageNumber === currentPage 
+                    ? { ...page, content: JSON.stringify([...elements, newElement]) }
+                    : page
+            );
+            setPages(updatedPages);
+            savePages(updatedPages);
         },
-        [historyIndex, setElements, setHistory, setHistoryIndex]
+        [historyIndex, setElements, setHistory, setHistoryIndex, pages, currentPage, elements]
     );
 
     // Callback to delete an element by its ID and update the history
     const deleteElement = useCallback(
         (elementId: string) => {
             handleDeleteElement(elementId, setElements, setHistory, historyIndex, setHistoryIndex);
+            // Update the current page content and save pages
+            const updatedPages = pages.map(page => 
+                page.pageNumber === currentPage 
+                    ? { ...page, content: JSON.stringify(elements.filter(el => el.id !== elementId)) }
+                    : page
+            );
+            setPages(updatedPages);
+            savePages(updatedPages);
         },
-        [historyIndex, setElements, setHistory, setHistoryIndex]
+        [historyIndex, setElements, setHistory, setHistoryIndex, pages, currentPage, elements]
     );
 
     // Callback to handle the undo action
@@ -101,11 +124,9 @@ const Builder: React.FC = () => {
         return <Loader />;
     }
 
-    // @ts-ignore
     return (
         <ThemeProvider>
             <div className="flex h-screen">
-                {/* Left sidebar for adding elements and setting template content */}
                 <MemoizedLeftSideMenu
                     addElement={addElement}
                     setTemplateContent={(content) =>
@@ -126,7 +147,6 @@ const Builder: React.FC = () => {
                 />
 
                 <div className="flex flex-col flex-1">
-                    {/* Top bar for handling undo/redo actions, viewing source code, etc. */}
                     <MemoizedTopBar
                         selectedElement={selectedElement}
                         updateElement={updateElement}
@@ -143,7 +163,6 @@ const Builder: React.FC = () => {
                     />
 
                     <div className="flex flex-1 overflow-hidden">
-                        {/* Canvas area to display and manipulate elements */}
                         <MemoizedCanvas
                             elements={elements}
                             updateElement={updateElement}
@@ -153,9 +172,11 @@ const Builder: React.FC = () => {
                             canvasSize={canvasSize}
                             zoom={zoom}
                             setZoom={setZoom}
+                            currentPage={currentPage}
+                            pages={pages}
+                            setPages={setPages}
                         />
 
-                        {/* Right sidebar for page management (add, delete, switch pages) */}
                         <MemoizedRightSidebar
                             pages={pages}
                             currentPage={currentPage}
@@ -181,7 +202,6 @@ const Builder: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Modal for viewing the raw source code */}
                 <MemoizedViewSourceModal
                     isOpen={isViewSourceModalOpen}
                     onClose={() => setIsViewSourceModalOpen(false)}
@@ -190,7 +210,6 @@ const Builder: React.FC = () => {
                     pages={pages}
                 />
 
-                {/* Modal for previewing the document */}
                 <MemoizedPreviewModal
                     isOpen={isPreviewModalOpen}
                     onClose={() => setIsPreviewModalOpen(false)}

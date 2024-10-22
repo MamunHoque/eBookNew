@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Trash2 } from 'lucide-react';
 import { Element } from '../types';
+import { savePages } from '../utils/indexedDB';
 
 interface CanvasElementProps {
   element: Element;
@@ -10,28 +11,106 @@ interface CanvasElementProps {
   onDelete: (elementId: string) => void;
   canvasSize: { width: number; height: number };
   zoom: number;
+  currentPage: number;
+  pages: { pageNumber: number; content: string }[];
+  setPages: React.Dispatch<React.SetStateAction<{ pageNumber: number; content: string }[]>>;
 }
 
 const CanvasElement: React.FC<CanvasElementProps> = ({
-                                                       element,
-                                                       isSelected,
-                                                       onSelect,
-                                                       onUpdate,
-                                                       onDelete,
-                                                       canvasSize,
-                                                       zoom
-                                                     }) => {
+  element,
+  isSelected,
+  onSelect,
+  onUpdate,
+  onDelete,
+  canvasSize,
+  zoom,
+  currentPage,
+  pages,
+  setPages
+}) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editableContent, setEditableContent] = useState(element.content);
   const elementRef = useRef<HTMLDivElement>(null);
+  const contentEditableRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [isResizing, setIsResizing] = useState(false);
   const [resizeStart, setResizeStart] = useState({ x: 0, y: 0 });
+  const [selectionState, setSelectionState] = useState<{ start: number; end: number } | null>(null);
+
+  const saveSelection = () => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0 && contentEditableRef.current) {
+      const range = selection.getRangeAt(0);
+      const preSelectionRange = range.cloneRange();
+      preSelectionRange.selectNodeContents(contentEditableRef.current);
+      preSelectionRange.setEnd(range.startContainer, range.startOffset);
+      const start = preSelectionRange.toString().length;
+
+      return {
+        start,
+        end: start + range.toString().length
+      };
+    }
+    return null;
+  };
+
+  const restoreSelection = (savedSelection: { start: number; end: number } | null) => {
+    if (savedSelection && contentEditableRef.current) {
+      const range = document.createRange();
+      let charIndex = 0;
+      const nodeStack = [contentEditableRef.current];
+      let node: Node | null;
+      let foundStart = false;
+      let foundEnd = false;
+
+      while (!foundEnd && (node = nodeStack.pop())) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const nextCharIndex = charIndex + node.textContent!.length;
+          if (!foundStart && savedSelection.start >= charIndex && savedSelection.start <= nextCharIndex) {
+            range.setStart(node, savedSelection.start - charIndex);
+            foundStart = true;
+          }
+          if (foundStart && savedSelection.end >= charIndex && savedSelection.end <= nextCharIndex) {
+            range.setEnd(node, savedSelection.end - charIndex);
+            foundEnd = true;
+          }
+          charIndex = nextCharIndex;
+        } else {
+          let i = node.childNodes.length;
+          while (i--) {
+            nodeStack.push(node.childNodes[i]);
+          }
+        }
+      }
+
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+    }
+  };
+
+  const handleChange = useCallback(() => {
+    const newContent = contentEditableRef.current?.innerHTML || '';
+    const updatedElement = { ...element, content: newContent };
+    onUpdate(updatedElement);
+    
+    // Update pages
+    const updatedPages = pages.map(page => 
+      page.pageNumber === currentPage 
+        ? { ...page, content: JSON.stringify([...JSON.parse(page.content).filter((el: Element) => el.id !== element.id), updatedElement]) }
+        : page
+    );
+    setPages(updatedPages);
+    savePages(updatedPages);
+
+    setSelectionState(saveSelection());
+  }, [element, onUpdate, pages, currentPage, setPages]);
 
   useEffect(() => {
-    setEditableContent(element.content);
-  }, [element.content]);
+    if (isEditing && selectionState) {
+      restoreSelection(selectionState);
+    }
+  }, [isEditing, selectionState]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isEditing) return;
@@ -104,11 +183,7 @@ const CanvasElement: React.FC<CanvasElementProps> = ({
 
   const handleBlur = () => {
     setIsEditing(false);
-    onUpdate({ ...element, content: editableContent });
-  };
-
-  const handleChange = (e: React.FormEvent<HTMLDivElement>) => {
-    setEditableContent(e.currentTarget.innerHTML);
+    setSelectionState(null);
   };
 
   const handleDelete = () => {
@@ -160,47 +235,48 @@ const CanvasElement: React.FC<CanvasElementProps> = ({
   };
 
   return (
-      <div
-          ref={elementRef}
-          style={style}
-          className={`canvas-element ${isSelected ? 'selected' : ''}`}
-          onMouseDown={handleMouseDown}
-          onDoubleClick={handleDoubleClick}
-      >
-        {isSelected && !isEditing && (
-            <>
-              <button
-                  onClick={handleDelete}
-                  className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                  title="Delete element"
-              >
-                <Trash2 size={14} />
-              </button>
-              <div
-                  style={resizeHandleStyle}
-                  onMouseDown={handleResizeStart}
-              />
-            </>
-        )}
+    <div
+      ref={elementRef}
+      style={style}
+      className={`canvas-element ${isSelected ? 'selected' : ''}`}
+      onMouseDown={handleMouseDown}
+      onDoubleClick={handleDoubleClick}
+    >
+      {isSelected && !isEditing && (
+        <>
+          <button
+            onClick={handleDelete}
+            className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+            title="Delete element"
+          >
+            <Trash2 size={14} />
+          </button>
+          <div
+            style={resizeHandleStyle}
+            onMouseDown={handleResizeStart}
+          />
+        </>
+      )}
 
-        <div
-            contentEditable={isEditing}
-            onBlur={handleBlur}
-            onInput={handleChange}
-            dangerouslySetInnerHTML={{ __html: editableContent }}
-            style={{
-              width: '100%',
-              height: '100%',
-              overflow: 'auto',
-              cursor: isEditing ? 'text' : 'inherit',
-              userSelect: 'text', // Allow proper text selection
-              pointerEvents: isEditing ? 'auto' : 'none',
-              textAlign: 'left', // Ensure left-to-right writing direction
-              direction: 'ltr', // Set explicitly for left-to-right writing behavior
-              unicodeBidi: 'normal', // Ensure correct bi-directional text behavior
-            }}
-        />
-      </div>
+      <div
+        ref={contentEditableRef}
+        contentEditable={isEditing}
+        onBlur={handleBlur}
+        onInput={handleChange}
+        dangerouslySetInnerHTML={{ __html: element.content }}
+        style={{
+          width: '100%',
+          height: '100%',
+          overflow: 'auto',
+          cursor: isEditing ? 'text' : 'inherit',
+          userSelect: 'text',
+          pointerEvents: isEditing ? 'auto' : 'none',
+          textAlign: 'left',
+          direction: 'ltr',
+          unicodeBidi: 'normal',
+        }}
+      />
+    </div>
   );
 };
 

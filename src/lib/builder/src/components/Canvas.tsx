@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react';
 import CanvasElement from './CanvasElement';
-import { Element } from '../types';
+import { Element, Page } from '../types';
 import ZoomToolbar from './ZoomToolbar';
 
 interface CanvasProps {
@@ -14,6 +14,9 @@ interface CanvasProps {
   canvasSize: { width: number; height: number };
   zoom: number;
   setZoom: (zoom: number) => void;
+  currentPage: number;
+  pages: Page[];
+  setPages: React.Dispatch<React.SetStateAction<Page[]>>;
 }
 
 const Canvas: React.FC<CanvasProps> = ({
@@ -25,6 +28,9 @@ const Canvas: React.FC<CanvasProps> = ({
   canvasSize,
   zoom,
   setZoom,
+  currentPage,
+  pages,
+  setPages,
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -87,6 +93,9 @@ const Canvas: React.FC<CanvasProps> = ({
               onDelete={deleteElement}
               canvasSize={canvasSize}
               zoom={zoom}
+              currentPage={currentPage}
+              pages={pages}
+              setPages={setPages}
             />
           ))}
         </div>
