@@ -1,6 +1,6 @@
 export interface Element {
   id: string;
-  type: 'text' | 'image' | 'shape'; // Add more types as needed
+  type: 'text' | 'image' | 'shape' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p'; // Add more types as needed
   content: string;
   left: number;
   top: number;

@@ -10,12 +10,14 @@ import { Element, Page } from './types';
 import { initDB, savePages, getPages } from './utils/indexedDB';
 import './builder.css';
 import { ThemeProvider } from './context/ThemeContext';
+
+// @ts-ignore
 import {
     handleUpdateElement, handleAddElement, handleDeleteElement, handlePageSizeChange,
     handleUndo, handleRedo, handleAddPage, handleDuplicatePage, handleDeletePage, switchPage, setTemplateContent
-} from './builderMethods';
+} from './builderMethods.js';
 
-// Memoizing components to avoid unnecessary re-renders
+// Memoized components to avoid unnecessary re-renders
 const MemoizedLeftSideMenu = memo(LeftSideMenu);
 const MemoizedTopBar = memo(TopBar);
 const MemoizedCanvas = memo(Canvas);
@@ -25,19 +27,19 @@ const MemoizedPreviewModal = memo(PreviewModal);
 
 const Builder: React.FC = () => {
     const [pages, setPages] = useState<Page[]>([{ pageNumber: 1, content: '[]' }]);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState<number>(1);
     const [elements, setElements] = useState<Element[]>([]);
     const [selectedElement, setSelectedElement] = useState<Element | null>(null);
-    const [isViewSourceModalOpen, setIsViewSourceModalOpen] = useState(false);
-    const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
-    const [canvasSize, setCanvasSize] = useState({ width: 8.5, height: 11 });
-    const [zoom, setZoom] = useState(100);
-    const [isDBInitialized, setIsDBInitialized] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isViewSourceModalOpen, setIsViewSourceModalOpen] = useState<boolean>(false);
+    const [isPreviewModalOpen, setIsPreviewModalOpen] = useState<boolean>(false);
+    const [canvasSize, setCanvasSize] = useState<{ width: number; height: number }>({ width: 8.5, height: 11 });
+    const [zoom, setZoom] = useState<number>(100);
+    const [isDBInitialized, setIsDBInitialized] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [history, setHistory] = useState<Element[][]>([]);
-    const [historyIndex, setHistoryIndex] = useState(-1);
+    const [historyIndex, setHistoryIndex] = useState<number>(-1);
 
-    // Initialize IndexedDB and load pages
+    // Initialize IndexedDB and load saved pages and elements from the database
     useEffect(() => {
         const initialize = async () => {
             await initDB();
@@ -55,52 +57,55 @@ const Builder: React.FC = () => {
         initialize();
     }, []);
 
-    // Update element callback
+    // Callback to update an element's properties and update the history
     const updateElement = useCallback(
-        (updatedElement) => {
+        (updatedElement: Element) => {
             handleUpdateElement(updatedElement, setElements, setHistory, historyIndex, setHistoryIndex);
         },
         [historyIndex, setElements, setHistory, setHistoryIndex]
     );
 
-    // Add element callback
+    // Callback to add a new element and update the history
     const addElement = useCallback(
-        (newElement) => {
+        (newElement: Element) => {
             handleAddElement(newElement, setElements, setHistory, historyIndex, setHistoryIndex);
         },
         [historyIndex, setElements, setHistory, setHistoryIndex]
     );
 
-    // Delete element callback
+    // Callback to delete an element by its ID and update the history
     const deleteElement = useCallback(
-        (elementId) => {
+        (elementId: string) => {
             handleDeleteElement(elementId, setElements, setHistory, historyIndex, setHistoryIndex);
         },
         [historyIndex, setElements, setHistory, setHistoryIndex]
     );
 
-    // Undo action callback
+    // Callback to handle the undo action
     const handleUndoAction = useCallback(() => {
         handleUndo(setHistoryIndex, historyIndex, setElements, history);
     }, [history, historyIndex]);
 
-    // Redo action callback
+    // Callback to handle the redo action
     const handleRedoAction = useCallback(() => {
         handleRedo(setHistoryIndex, historyIndex, setElements, history);
     }, [history, historyIndex]);
 
-    // Change page size callback
-    const changePageSize = useCallback((width, height) => {
+    // Callback to handle page size change
+    const changePageSize = useCallback((width: number, height: number) => {
         handlePageSizeChange(width, height, setCanvasSize);
     }, []);
 
+    // Render the loader if the data is still loading from IndexedDB
     if (isLoading) {
         return <Loader />;
     }
 
+    // @ts-ignore
     return (
         <ThemeProvider>
             <div className="flex h-screen">
+                {/* Left sidebar for adding elements and setting template content */}
                 <MemoizedLeftSideMenu
                     addElement={addElement}
                     setTemplateContent={(content) =>
@@ -119,7 +124,9 @@ const Builder: React.FC = () => {
                     isCanvasEmpty={elements.length === 0}
                     canvasSize={canvasSize}
                 />
+
                 <div className="flex flex-col flex-1">
+                    {/* Top bar for handling undo/redo actions, viewing source code, etc. */}
                     <MemoizedTopBar
                         selectedElement={selectedElement}
                         updateElement={updateElement}
@@ -134,7 +141,9 @@ const Builder: React.FC = () => {
                         onViewSourceCode={() => setIsViewSourceModalOpen(true)}
                         onPreview={() => setIsPreviewModalOpen(true)}
                     />
+
                     <div className="flex flex-1 overflow-hidden">
+                        {/* Canvas area to display and manipulate elements */}
                         <MemoizedCanvas
                             elements={elements}
                             updateElement={updateElement}
@@ -145,6 +154,8 @@ const Builder: React.FC = () => {
                             zoom={zoom}
                             setZoom={setZoom}
                         />
+
+                        {/* Right sidebar for page management (add, delete, switch pages) */}
                         <MemoizedRightSidebar
                             pages={pages}
                             currentPage={currentPage}
@@ -169,6 +180,8 @@ const Builder: React.FC = () => {
                         />
                     </div>
                 </div>
+
+                {/* Modal for viewing the raw source code */}
                 <MemoizedViewSourceModal
                     isOpen={isViewSourceModalOpen}
                     onClose={() => setIsViewSourceModalOpen(false)}
@@ -176,6 +189,8 @@ const Builder: React.FC = () => {
                     canvasSize={canvasSize}
                     pages={pages}
                 />
+
+                {/* Modal for previewing the document */}
                 <MemoizedPreviewModal
                     isOpen={isPreviewModalOpen}
                     onClose={() => setIsPreviewModalOpen(false)}

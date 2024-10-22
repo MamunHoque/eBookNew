@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import {Type, X} from 'lucide-react';
+import {X} from 'lucide-react';
 import { Element } from '../../types';
 import { ThemeContext } from '../../context/ThemeContext';
 

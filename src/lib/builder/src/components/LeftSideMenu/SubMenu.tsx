@@ -35,7 +35,7 @@ const SubMenu: React.FC<SubMenuProps> = ({
   useEffect(() => {
     if (category.name === 'Templates') {
       setFilteredItems(
-          templates.filter((template) =>
+          templates.filter((template: { name: string; }) =>
               template.name.toLowerCase().includes(searchTerm.toLowerCase())
           )
       );

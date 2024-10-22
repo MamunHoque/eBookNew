@@ -1,6 +1,5 @@
 // builderMethods.js
-import { savePages } from './utils/indexedDB';
-import {useCallback} from "react";
+import {savePages} from './utils/indexedDB';
 
 /**
  * Adds a new version of elements to history for undo/redo functionality.
@@ -52,7 +51,7 @@ export const handleDeleteElement = (elementId, setElements, setHistory, historyI
  * Updates the canvas size (width and height) based on user input.
  */
 export const handlePageSizeChange = (width, height, setCanvasSize) => {
-    setCanvasSize({ width, height });
+    setCanvasSize({width, height});
 };
 
 /**
@@ -80,7 +79,7 @@ export const handleRedo = (setHistoryIndex, historyIndex, setElements, history) 
  */
 export const handleAddPage = async (pages, setPages, setCurrentPage, setElements) => {
     const newPageNumber = pages.length + 1;
-    const newPage = { pageNumber: newPageNumber, content: '[]' };
+    const newPage = {pageNumber: newPageNumber, content: '[]'};
 
     const updatedPages = [...pages, newPage];
     setPages(updatedPages);
@@ -98,7 +97,7 @@ export const handleDuplicatePage = (pageNumber, pages, setPages) => {
     if (pageToDuplicate) {
         setPages((prevPages) => [
             ...prevPages,
-            { pageNumber: prevPages.length + 1, content: pageToDuplicate.content },
+            {pageNumber: prevPages.length + 1, content: pageToDuplicate.content},
         ]);
     }
 };
@@ -112,7 +111,7 @@ export const handleDeletePage = async (
     if (pages.length > 1) {
         const updatedPages = pages
             .filter((page) => page.pageNumber !== pageNumber)
-            .map((page, index) => ({ ...page, pageNumber: index + 1 }));
+            .map((page, index) => ({...page, pageNumber: index + 1}));
 
         setPages(updatedPages);
         await savePages(updatedPages);
@@ -126,6 +125,7 @@ export const handleDeletePage = async (
         }
     }
 };
+
 
 /**
  * Switches the current page to a different one by saving the current page's content and loading the content of the new page.
@@ -149,14 +149,36 @@ export const switchPage = async (
     // Update the pages state immediately
     setPages(updatedPages);
 
+    // Check if there are any pages left
+    if (updatedPages.length === 0) {
+        // Handle case when no pages exist anymore
+        setCurrentPage(null); // Reset current page
+        setElements([]); // Clear elements
+        setHistory([]); // Clear history
+        setHistoryIndex(-1); // Reset history index
+        await savePages(updatedPages); // Save the empty state
+        return; // Exit function early since no pages are available
+    }
+
     // Now switch to the new page
     const nextPage = updatedPages.find((page) => page.pageNumber === pageNumber);
-    if (nextPage) {
-        const newElements = JSON.parse(nextPage.content);
-        setElements(newElements);
-        setHistory([newElements]);
-        setHistoryIndex(0);
+
+    // If the next page doesn't exist, reset or handle error
+    if (!nextPage) {
+        // If the requested page doesn't exist, handle this case gracefully
+        setCurrentPage(null);
+        setElements([]); // Clear elements since no page is found
+        setHistory([]); // Clear history
+        setHistoryIndex(-1); // Reset history index
+        await savePages(updatedPages); // Save the state
+        return; // Exit early
     }
+
+    // Set elements and history for the new page
+    const newElements = JSON.parse(nextPage.content);
+    setElements(newElements);
+    setHistory([newElements]);
+    setHistoryIndex(0);
 
     // Set the current page after everything else
     setCurrentPage(pageNumber);
@@ -164,7 +186,6 @@ export const switchPage = async (
     // Save pages to persist the state
     await savePages(updatedPages);
 };
-
 
 
 /**
@@ -194,7 +215,7 @@ export const setTemplateContent = async (
 
         // Update the content of the current page in the pages array
         const updatedPages = currentPages.map((page) =>
-            page.pageNumber === currentPage ? { ...page, content: JSON.stringify([newElement]) } : page
+            page.pageNumber === currentPage ? {...page, content: JSON.stringify([newElement])} : page
         );
 
         setPages(updatedPages);
