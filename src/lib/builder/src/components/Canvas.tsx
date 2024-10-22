@@ -1,23 +1,10 @@
-"use client";
-
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import CanvasElement from './CanvasElement';
-import { Element, Page } from '../types';
 import ZoomToolbar from './ZoomToolbar';
-
-interface CanvasProps {
-  elements: Element[];
-  updateElement: (updatedElement: Element) => void;
-  deleteElement: (elementId: string) => void;
-  setSelectedElement: (element: Element | null) => void;
-  selectedElement: Element | null;
-  canvasSize: { width: number; height: number };
-  zoom: number;
-  setZoom: (zoom: number) => void;
-  currentPage: number;
-  pages: Page[];
-  setPages: React.Dispatch<React.SetStateAction<Page[]>>;
-}
+import { Element, Page, CanvasProps } from '../types';
+import ConfirmationModal from './ConfirmationModal';
+import detectSource from '../utils/detectSource';
+import cleanContent from '../utils/cleanContent';
 
 const Canvas: React.FC<CanvasProps> = ({
   elements,
@@ -31,8 +18,57 @@ const Canvas: React.FC<CanvasProps> = ({
   currentPage,
   pages,
   setPages,
+  addElement,
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const [needsScroll, setNeedsScroll] = useState(false);
+  const [showPasteModal, setShowPasteModal] = useState(false);
+  const [pastedContent, setPastedContent] = useState('');
+  const [contentSource, setContentSource] = useState<'microsoft_office' | 'google_docs' | 'excel' | 'unknown'>('unknown');
+
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      e.preventDefault();
+      const text = e.clipboardData?.getData('text/html') || e.clipboardData?.getData('text');
+      if (text) {
+        setPastedContent(text);
+        setContentSource(detectSource(text));
+        setShowPasteModal(true);
+      }
+    };
+
+    const canvasElement = canvasRef.current;
+    if (canvasElement) {
+      canvasElement.addEventListener('paste', handlePaste);
+    }
+
+    return () => {
+      if (canvasElement) {
+        canvasElement.removeEventListener('paste', handlePaste);
+      }
+    };
+  }, []);
+
+  const handlePasteConfirm = (keepFormatting: boolean) => {
+    const cleanedContent = cleanContent(pastedContent, contentSource, keepFormatting);
+    const newElement: Element = {
+      id: Date.now().toString(),
+      type: 'div',
+      content: cleanedContent,
+      left: 0,
+      top: 0,
+      width: 100, // Set to 100% of canvas width
+      height: 100, // Set to 100% of canvas height
+      zIndex: elements.length + 1,
+      style: {
+        overflow: 'auto',
+        padding: '20px',
+        boxSizing: 'border-box',
+      },
+    };
+    addElement(newElement);
+    setShowPasteModal(false);
+  };
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === canvasRef.current) {
@@ -52,6 +88,7 @@ const Canvas: React.FC<CanvasProps> = ({
     padding: '40px',
     boxSizing: 'border-box',
     position: 'relative',
+    overflow: 'hidden',
   };
 
   const containerStyle: React.CSSProperties = {
@@ -105,6 +142,15 @@ const Canvas: React.FC<CanvasProps> = ({
         onZoom={setZoom}
         onPageNext={() => {}}
         onPagePrevious={() => {}}
+      />
+      <ConfirmationModal
+        isOpen={showPasteModal}
+        onClose={() => setShowPasteModal(false)}
+        onConfirm={() => handlePasteConfirm(true)}
+        onCancel={() => handlePasteConfirm(false)}
+        message="How would you like to paste the content?"
+        confirmText="Keep Formatting"
+        cancelText="Remove Formatting"
       />
     </div>
   );

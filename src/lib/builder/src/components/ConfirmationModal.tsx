@@ -4,10 +4,21 @@ interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  onCancel: () => void;
   message: string;
+  confirmText: string;
+  cancelText: string;
 }
 
-const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, onConfirm, message }) => {
+const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  onCancel,
+  message,
+  confirmText,
+  cancelText
+}) => {
   if (!isOpen) return null;
 
   return (
@@ -17,10 +28,13 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
         <p className="mb-6 text-gray-600 dark:text-gray-400">{message}</p>
         <div className="flex justify-end space-x-4">
           <button
-            onClick={onClose}
+            onClick={() => {
+              onCancel();
+              onClose();
+            }}
             className="px-4 py-2 bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors"
           >
-            Cancel
+            {cancelText}
           </button>
           <button
             onClick={() => {
@@ -29,7 +43,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
             }}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
           >
-            Confirm
+            {confirmText}
           </button>
         </div>
       </div>

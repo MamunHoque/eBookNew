@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Trash2 } from 'lucide-react';
-import { Element } from '../types';
+import { Element, Page } from '../types';
 import { savePages } from '../utils/indexedDB';
 
 interface CanvasElementProps {
@@ -12,8 +12,8 @@ interface CanvasElementProps {
   canvasSize: { width: number; height: number };
   zoom: number;
   currentPage: number;
-  pages: { pageNumber: number; content: string }[];
-  setPages: React.Dispatch<React.SetStateAction<{ pageNumber: number; content: string }[]>>;
+  pages: Page[];
+  setPages: React.Dispatch<React.SetStateAction<Page[]>>;
 }
 
 const CanvasElement: React.FC<CanvasElementProps> = ({
@@ -37,7 +37,7 @@ const CanvasElement: React.FC<CanvasElementProps> = ({
   const [resizeStart, setResizeStart] = useState({ x: 0, y: 0 });
   const [selectionState, setSelectionState] = useState<{ start: number; end: number } | null>(null);
 
-  const saveSelection = () => {
+  const saveSelection = useCallback(() => {
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0 && contentEditableRef.current) {
       const range = selection.getRangeAt(0);
@@ -52,9 +52,9 @@ const CanvasElement: React.FC<CanvasElementProps> = ({
       };
     }
     return null;
-  };
+  }, []);
 
-  const restoreSelection = (savedSelection: { start: number; end: number } | null) => {
+  const restoreSelection = useCallback((savedSelection: { start: number; end: number } | null) => {
     if (savedSelection && contentEditableRef.current) {
       const range = document.createRange();
       let charIndex = 0;
@@ -87,7 +87,7 @@ const CanvasElement: React.FC<CanvasElementProps> = ({
       selection?.removeAllRanges();
       selection?.addRange(range);
     }
-  };
+  }, []);
 
   const handleChange = useCallback(() => {
     const newContent = contentEditableRef.current?.innerHTML || '';
@@ -97,20 +97,36 @@ const CanvasElement: React.FC<CanvasElementProps> = ({
     // Update pages
     const updatedPages = pages.map(page => 
       page.pageNumber === currentPage 
-        ? { ...page, content: JSON.stringify([...JSON.parse(page.content).filter((el: Element) => el.id !== element.id), updatedElement]) }
+        ? { ...page, content: JSON.stringify(JSON.parse(page.content).map((el: Element) => 
+            el.id === element.id ? updatedElement : el
+          ))}
         : page
     );
     setPages(updatedPages);
     savePages(updatedPages);
 
     setSelectionState(saveSelection());
-  }, [element, onUpdate, pages, currentPage, setPages]);
+  }, [element, onUpdate, pages, currentPage, setPages, saveSelection]);
 
   useEffect(() => {
-    if (isEditing && selectionState) {
+    if (isEditing) {
       restoreSelection(selectionState);
     }
-  }, [isEditing, selectionState]);
+  }, [isEditing, selectionState, restoreSelection]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        e.preventDefault();
+        setSelectionState(saveSelection());
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [saveSelection]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isEditing) return;

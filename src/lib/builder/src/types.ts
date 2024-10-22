@@ -16,3 +16,18 @@ export interface Page {
   pageNumber: number;
   content: string;
 }
+
+export interface CanvasProps {
+  elements: Element[];
+  updateElement: (updatedElement: Element) => void;
+  deleteElement: (elementId: string) => void;
+  setSelectedElement: (element: Element | null) => void;
+  selectedElement: Element | null;
+  canvasSize: { width: number; height: number };
+  zoom: number;
+  setZoom: (zoom: number) => void;
+  currentPage: number;
+  pages: Page[];
+  setPages: React.Dispatch<React.SetStateAction<Page[]>>;
+  addElement: (element: Element) => void;
+}

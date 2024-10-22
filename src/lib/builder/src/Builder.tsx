@@ -75,18 +75,24 @@ const Builder: React.FC = () => {
     // Callback to add a new element and update the history
     const addElement = useCallback(
         (newElement: Element) => {
-            handleAddElement(newElement, setElements, setHistory, historyIndex, setHistoryIndex);
-            // Update the current page content and save pages
-            const updatedPages = pages.map(page => 
-                page.pageNumber === currentPage 
-                    ? { ...page, content: JSON.stringify([...elements, newElement]) }
-                    : page
-            );
-            setPages(updatedPages);
-            savePages(updatedPages);
+          setElements((prevElements) => {
+            const newElements = [...prevElements, newElement];
+            addToHistory(newElements, setHistory, historyIndex, setHistoryIndex);
+            return newElements;
+          });
+    
+          // Update the current page content and save pages
+          const updatedPages = pages.map(page => 
+            page.pageNumber === currentPage 
+              ? { ...page, content: JSON.stringify([...elements, newElement]) }
+              : page
+          );
+          setPages(updatedPages);
+          savePages(updatedPages);
         },
         [historyIndex, setElements, setHistory, setHistoryIndex, pages, currentPage, elements]
-    );
+      );
+    
 
     // Callback to delete an element by its ID and update the history
     const deleteElement = useCallback(
@@ -118,6 +124,31 @@ const Builder: React.FC = () => {
     const changePageSize = useCallback((width: number, height: number) => {
         handlePageSizeChange(width, height, setCanvasSize);
     }, []);
+
+    // Add keyboard event listener for undo and redo
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.metaKey || event.ctrlKey) {
+                if (event.key === 'z') {
+                    event.preventDefault();
+                    if (event.shiftKey) {
+                        handleRedoAction();
+                    } else {
+                        handleUndoAction();
+                    }
+                } else if (event.key === 'y') {
+                    event.preventDefault();
+                    handleRedoAction();
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [handleUndoAction, handleRedoAction]);
 
     // Render the loader if the data is still loading from IndexedDB
     if (isLoading) {
@@ -162,19 +193,20 @@ const Builder: React.FC = () => {
                         onPreview={() => setIsPreviewModalOpen(true)}
                     />
 
-                    <div className="flex flex-1 overflow-hidden">
+                     <div className="flex flex-1 overflow-hidden">
                         <MemoizedCanvas
-                            elements={elements}
-                            updateElement={updateElement}
-                            deleteElement={deleteElement}
-                            setSelectedElement={setSelectedElement}
-                            selectedElement={selectedElement}
-                            canvasSize={canvasSize}
-                            zoom={zoom}
-                            setZoom={setZoom}
-                            currentPage={currentPage}
-                            pages={pages}
-                            setPages={setPages}
+                          elements={elements}
+                          updateElement={updateElement}
+                          deleteElement={deleteElement}
+                          setSelectedElement={setSelectedElement}
+                          selectedElement={selectedElement}
+                          canvasSize={canvasSize}
+                          zoom={zoom}
+                          setZoom={setZoom}
+                          currentPage={currentPage}
+                          pages={pages}
+                          setPages={setPages}
+                          addElement={addElement}
                         />
 
                         <MemoizedRightSidebar

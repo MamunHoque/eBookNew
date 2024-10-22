@@ -65,12 +65,6 @@ const TopBar: React.FC<TopBarProps> = ({
     <div className={`flex items-center justify-between py-2 px-4 ${isDark ? 'bg-gray-800 border-gray-700 text-gray-300' : 'bg-white border-gray-200 text-gray-700'} border-b`}>
       <div className="flex items-center space-x-2">
         {memoizedPageSizeSetup}
-        <button onClick={() => handleStyleChange('fontWeight')} className={buttonClass}><Bold size={18} className={iconClass} /></button>
-        <button onClick={() => handleStyleChange('fontStyle')} className={buttonClass}><Italic size={18} className={iconClass} /></button>
-        <button onClick={() => handleStyleChange('textDecoration')} className={buttonClass}><Underline size={18} className={iconClass} /></button>
-        <button onClick={() => handleAlignChange('left')} className={buttonClass}><AlignLeft size={18} className={iconClass} /></button>
-        <button onClick={() => handleAlignChange('center')} className={buttonClass}><AlignCenter size={18} className={iconClass} /></button>
-        <button onClick={() => handleAlignChange('right')} className={buttonClass}><AlignRight size={18} className={iconClass} /></button>
       </div>
       <div className="flex items-center space-x-2">
         <button onClick={undo} disabled={!canUndo} className={`${buttonClass} ${!canUndo && 'opacity-50 cursor-not-allowed'}`}><Undo size={18} className={iconClass} /></button>

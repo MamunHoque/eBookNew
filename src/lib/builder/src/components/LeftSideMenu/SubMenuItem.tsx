@@ -39,7 +39,7 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
     }
   };
 
-  const addItemToCanvas = () => {
+ const addItemToCanvas = () => {
     if (isTemplate) {
       setTemplateContent(item.content);
     } else {
@@ -49,15 +49,15 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
         content: item.content,
         left: 25, // Center horizontally
         top: 25, // Center vertically
-        width: Math.min(60, getMinWidth(item.type)), // 50% of canvas width, but not smaller than minimum
-        height: Math.min(30, getMinHeight(item.type)), // 50% of canvas height, but not smaller than minimum
+        width: Math.min(50, getMinWidth(item.type)), // 50% of canvas width, but not smaller than minimum
+        height: Math.min(50, getMinHeight(item.type)), // 50% of canvas height, but not smaller than minimum
         zIndex: 1,
       };
       addElement(newElement);
     }
   };
 
-  const getMinWidth = (type: string): number => {
+   const getMinWidth = (type: string): number => {
     switch (type) {
       case 'heading':
         return 30;
@@ -90,7 +90,6 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
         return 15;
     }
   };
-
   return (
     <>
       <div
@@ -120,7 +119,10 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
           addItemToCanvas();
           setIsModalOpen(false);
         }}
+        onCancel={() => setIsModalOpen(false)}
         message="This will replace your current content. Are you sure you want to continue?"
+        confirmText="Confirm"
+        cancelText="Cancel"
       />
     </>
   );
