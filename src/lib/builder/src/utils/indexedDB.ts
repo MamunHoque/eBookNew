@@ -33,9 +33,14 @@ export const savePages = (pages: Page[]): Promise<void> => {
     const transaction = db.transaction(STORE_NAME, 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
 
-    pages.forEach(page => {
-      store.put(page);
-    });
+    // Clear the store before adding updated pages
+    const clearRequest = store.clear();
+
+    clearRequest.onsuccess = () => {
+      pages.forEach((page) => {
+        store.put(page);
+      });
+    };
 
     transaction.oncomplete = () => resolve();
     transaction.onerror = () => reject(transaction.error);

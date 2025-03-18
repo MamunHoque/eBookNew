@@ -1,6 +1,4 @@
-"use client";
-
-import React, {useState, useEffect, useCallback} from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import TopBar from './components/TopBar';
 import LeftSideMenu from './components/LeftSideMenu/LeftSideMenu';
 import Canvas from './components/Canvas';
@@ -8,27 +6,38 @@ import RightSidebar from './components/RightSidebar';
 import ViewSourceModal from './components/ViewSourceModal';
 import PreviewModal from './components/PreviewModal';
 import Loader from './components/Loader';
-import {Element, Page} from './types';
-import {initDB, savePages, getPages} from './utils/indexedDB';
+import { Element, Page } from './types';
+import { initDB, savePages, getPages } from './utils/indexedDB';
 import './builder.css';
-import {ThemeProvider} from './context/ThemeContext';
+import { ThemeProvider } from './context/ThemeContext';
+import {
+    handleUpdateElement, handleAddElement, handleDeleteElement, handlePageSizeChange,
+    handleUndo, handleRedo, handleAddPage, handleDuplicatePage, handleDeletePage, switchPage, setTemplateContent
+} from './builderMethods';
+
+// Memoizing components to avoid unnecessary re-renders
+const MemoizedLeftSideMenu = memo(LeftSideMenu);
+const MemoizedTopBar = memo(TopBar);
+const MemoizedCanvas = memo(Canvas);
+const MemoizedRightSidebar = memo(RightSidebar);
+const MemoizedViewSourceModal = memo(ViewSourceModal);
+const MemoizedPreviewModal = memo(PreviewModal);
 
 const Builder: React.FC = () => {
-    const [pages, setPages] = useState<Page[]>([{pageNumber: 1, content: '[]'}]);
+    const [pages, setPages] = useState<Page[]>([{ pageNumber: 1, content: '[]' }]);
     const [currentPage, setCurrentPage] = useState(1);
     const [elements, setElements] = useState<Element[]>([]);
     const [selectedElement, setSelectedElement] = useState<Element | null>(null);
     const [isViewSourceModalOpen, setIsViewSourceModalOpen] = useState(false);
     const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
-    const [canvasSize, setCanvasSize] = useState({width: 8.5, height: 11});
+    const [canvasSize, setCanvasSize] = useState({ width: 8.5, height: 11 });
     const [zoom, setZoom] = useState(100);
     const [isDBInitialized, setIsDBInitialized] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-
-    // New state for undo/redo functionality
     const [history, setHistory] = useState<Element[][]>([]);
     const [historyIndex, setHistoryIndex] = useState(-1);
 
+    // Initialize IndexedDB and load pages
     useEffect(() => {
         const initialize = async () => {
             await initDB();
@@ -46,187 +55,134 @@ const Builder: React.FC = () => {
         initialize();
     }, []);
 
-    const addToHistory = useCallback((newElements: Element[]) => {
-        setHistory(prevHistory => {
-            const newHistory = prevHistory.slice(0, historyIndex + 1);
-            return [...newHistory, newElements];
-        });
-        setHistoryIndex(prevIndex => prevIndex + 1);
-    }, [historyIndex]);
-
-    const handleUpdateElement = useCallback((updatedElement: Element) => {
-        setElements(prevElements => {
-            const newElements = prevElements.map(el =>
-                el.id === updatedElement.id ? updatedElement : el
-            );
-            addToHistory(newElements);
-            return newElements;
-        });
-    }, [addToHistory]);
-
-    const handleAddElement = useCallback((newElement: Element) => {
-        setElements(prevElements => {
-            const newElements = [...prevElements, newElement];
-            addToHistory(newElements);
-            return newElements;
-        });
-    }, [addToHistory]);
-
-    const handleDeleteElement = useCallback((elementId: string) => {
-        setElements(prevElements => {
-            const newElements = prevElements.filter(el => el.id !== elementId);
-            addToHistory(newElements);
-            return newElements;
-        });
-    }, [addToHistory]);
-
-    const handlePageSizeChange = useCallback((width: number, height: number) => {
-        setCanvasSize({width, height});
-    }, []);
-
-    const handleUndo = useCallback(() => {
-        if (historyIndex > 0) {
-            setHistoryIndex(prevIndex => prevIndex - 1);
-            setElements(history[historyIndex - 1]);
-        }
-    }, [history, historyIndex]);
-
-    const handleRedo = useCallback(() => {
-        if (historyIndex < history.length - 1) {
-            setHistoryIndex(prevIndex => prevIndex + 1);
-            setElements(history[historyIndex + 1]);
-        }
-    }, [history, historyIndex]);
-
-
-    const handleAddPage = useCallback(() => {
-        setPages((prevPages) => [
-            ...prevPages,
-            {pageNumber: prevPages.length + 1, content: '[]'},
-        ]);
-    }, []);
-
-    const handleDuplicatePage = useCallback(
-        (pageNumber: number) => {
-            const pageToDuplicate = pages.find((page) => page.pageNumber === pageNumber);
-            if (pageToDuplicate) {
-                setPages((prevPages) => [
-                    ...prevPages,
-                    {pageNumber: prevPages.length + 1, content: pageToDuplicate.content},
-                ]);
-            }
+    // Update element callback
+    const updateElement = useCallback(
+        (updatedElement) => {
+            handleUpdateElement(updatedElement, setElements, setHistory, historyIndex, setHistoryIndex);
         },
-        [pages]
+        [historyIndex, setElements, setHistory, setHistoryIndex]
     );
 
-    const handleDeletePage = useCallback(
-        (pageNumber: number) => {
-            if (pages.length > 1) {
-                setPages((prevPages) =>
-                    prevPages
-                        .filter((page) => page.pageNumber !== pageNumber)
-                        .map((page, index) => ({...page, pageNumber: index + 1}))
-                );
-            }
+    // Add element callback
+    const addElement = useCallback(
+        (newElement) => {
+            handleAddElement(newElement, setElements, setHistory, historyIndex, setHistoryIndex);
         },
-        [pages]
+        [historyIndex, setElements, setHistory, setHistoryIndex]
     );
 
+    // Delete element callback
+    const deleteElement = useCallback(
+        (elementId) => {
+            handleDeleteElement(elementId, setElements, setHistory, historyIndex, setHistoryIndex);
+        },
+        [historyIndex, setElements, setHistory, setHistoryIndex]
+    );
 
-    const setTemplateContent = useCallback((content: string) => {
-        try {
-            const parsedContent = JSON.parse(content);
-            setElements(parsedContent);
-            addToHistory(parsedContent);
-        } catch (error) {
-            const newElement: {
-                top: number;
-                left: number;
-                width: number;
-                id: string;
-                type: string;
-                content: string;
-                height: number;
-                zIndex: number
-            } = {
-                id: Date.now().toString(),
-                type: 'div',
-                content: content,
-                left: 0,
-                top: 0,
-                width: 100,
-                height: 100,
-                zIndex: 1,
-            };
-            setElements([newElement]);
-            addToHistory([newElement]);
-        }
-    }, [addToHistory]);
+    // Undo action callback
+    const handleUndoAction = useCallback(() => {
+        handleUndo(setHistoryIndex, historyIndex, setElements, history);
+    }, [history, historyIndex]);
+
+    // Redo action callback
+    const handleRedoAction = useCallback(() => {
+        handleRedo(setHistoryIndex, historyIndex, setElements, history);
+    }, [history, historyIndex]);
+
+    // Change page size callback
+    const changePageSize = useCallback((width, height) => {
+        handlePageSizeChange(width, height, setCanvasSize);
+    }, []);
 
     if (isLoading) {
-        return <Loader/>;
+        return <Loader />;
     }
 
     return (
         <ThemeProvider>
             <div className="flex h-screen">
-                <LeftSideMenu
-                    addElement={handleAddElement}
-                    setTemplateContent={setTemplateContent}
+                <MemoizedLeftSideMenu
+                    addElement={addElement}
+                    setTemplateContent={(content) =>
+                        setTemplateContent(
+                            content,
+                            setElements,
+                            setHistory,
+                            historyIndex,
+                            setHistoryIndex,
+                            currentPage,
+                            pages,
+                            setPages,
+                            savePages
+                        )
+                    }
                     isCanvasEmpty={elements.length === 0}
                     canvasSize={canvasSize}
                 />
                 <div className="flex flex-col flex-1">
-                    <TopBar
+                    <MemoizedTopBar
                         selectedElement={selectedElement}
-                        updateElement={handleUpdateElement}
-                        undo={handleUndo}
-                        redo={handleRedo}
+                        updateElement={updateElement}
+                        undo={handleUndoAction}
+                        redo={handleRedoAction}
                         canUndo={historyIndex > 0}
                         canRedo={historyIndex < history.length - 1}
                         generateSourceCode={() => ''}
-                        onPageSizeChange={handlePageSizeChange}
+                        onPageSizeChange={changePageSize}
                         canvasSize={canvasSize}
                         elements={elements}
                         onViewSourceCode={() => setIsViewSourceModalOpen(true)}
                         onPreview={() => setIsPreviewModalOpen(true)}
                     />
-
                     <div className="flex flex-1 overflow-hidden">
-                        <Canvas
+                        <MemoizedCanvas
                             elements={elements}
-                            updateElement={handleUpdateElement}
-                            deleteElement={handleDeleteElement}
+                            updateElement={updateElement}
+                            deleteElement={deleteElement}
                             setSelectedElement={setSelectedElement}
                             selectedElement={selectedElement}
                             canvasSize={canvasSize}
                             zoom={zoom}
                             setZoom={setZoom}
                         />
-                        <RightSidebar
+                        <MemoizedRightSidebar
                             pages={pages}
                             currentPage={currentPage}
-                            setCurrentPage={setCurrentPage}
-                            addNewPage={handleAddPage}
-                            duplicatePage={handleDuplicatePage}
-                            deletePage={handleDeletePage}
+                            setCurrentPage={(pageNumber) =>
+                                switchPage(
+                                    pageNumber,
+                                    currentPage,
+                                    elements,
+                                    pages,
+                                    setPages,
+                                    setCurrentPage,
+                                    setElements,
+                                    setHistory,
+                                    setHistoryIndex
+                                )
+                            }
+                            addNewPage={() => handleAddPage(pages, setPages, setCurrentPage, setElements)}
+                            duplicatePage={(pageNumber) => handleDuplicatePage(pageNumber, pages, setPages)}
+                            deletePage={(pageNumber) =>
+                                handleDeletePage(pageNumber, pages, setPages, currentPage, setCurrentPage, setElements)
+                            }
                         />
                     </div>
                 </div>
-                <ViewSourceModal
+                <MemoizedViewSourceModal
                     isOpen={isViewSourceModalOpen}
                     onClose={() => setIsViewSourceModalOpen(false)}
                     elements={elements}
                     canvasSize={canvasSize}
+                    pages={pages}
                 />
-                <PreviewModal
+                <MemoizedPreviewModal
                     isOpen={isPreviewModalOpen}
                     onClose={() => setIsPreviewModalOpen(false)}
                     pages={pages}
                     currentPage={currentPage}
                     canvasSize={canvasSize}
-                    elements={elements} // Add this line
-
+                    elements={elements}
                 />
             </div>
         </ThemeProvider>

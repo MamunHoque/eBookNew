@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Trash2 } from 'lucide-react';
-import FloatingToolbar from './FloatingToolbar'; // Import the FloatingToolbar component
 import { Element } from '../types';
 
 interface CanvasElementProps {
@@ -14,20 +13,17 @@ interface CanvasElementProps {
 }
 
 const CanvasElement: React.FC<CanvasElementProps> = ({
-  element,
-  isSelected,
-  onSelect,
-  onUpdate,
-  onDelete,
-  canvasSize,
-  zoom
-}) => {
+                                                       element,
+                                                       isSelected,
+                                                       onSelect,
+                                                       onUpdate,
+                                                       onDelete,
+                                                       canvasSize,
+                                                       zoom
+                                                     }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editableContent, setEditableContent] = useState(element.content);
-  const [showToolbar, setShowToolbar] = useState(false);
-  const [toolbarPosition, setToolbarPosition] = useState({ x: 0, y: 0 });
   const elementRef = useRef<HTMLDivElement>(null);
-  const toolbarRef = useRef<HTMLDivElement>(null); // Ref for toolbar
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [isResizing, setIsResizing] = useState(false);
@@ -104,21 +100,11 @@ const CanvasElement: React.FC<CanvasElementProps> = ({
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsEditing(true);
-
-    const contentEditableRect = elementRef.current?.getBoundingClientRect();
-    if (contentEditableRect) {
-      setToolbarPosition({
-        x: contentEditableRect.left,
-        y: contentEditableRect.top, // Positioned above the contentEditable area
-      });
-      setShowToolbar(true);
-    }
   };
 
   const handleBlur = () => {
     setIsEditing(false);
     onUpdate({ ...element, content: editableContent });
-    setShowToolbar(false);
   };
 
   const handleChange = (e: React.FormEvent<HTMLDivElement>) => {
@@ -148,10 +134,6 @@ const CanvasElement: React.FC<CanvasElementProps> = ({
     };
   }, [isSelected]);
 
-  const applyFormatting = (command: string, value?: string) => {
-    document.execCommand(command, false, value || '');
-  };
-
   const style: React.CSSProperties = {
     position: 'absolute',
     left: `${element.left}%`,
@@ -178,57 +160,47 @@ const CanvasElement: React.FC<CanvasElementProps> = ({
   };
 
   return (
-    <div
-      ref={elementRef}
-      style={style}
-      className={`canvas-element ${isSelected ? 'selected' : ''}`}
-      onMouseDown={handleMouseDown}
-      onDoubleClick={handleDoubleClick}
-    >
-      {isSelected && !isEditing && (
-        <>
-          <button
-            onClick={handleDelete}
-            className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-            title="Delete element"
-          >
-            <Trash2 size={14} />
-          </button>
-          <div
-            style={resizeHandleStyle}
-            onMouseDown={handleResizeStart}
-          />
-        </>
-      )}
-
-      {showToolbar && (
-        <div ref={toolbarRef}>
-          <FloatingToolbar
-            position={toolbarPosition}
-            visible={showToolbar}
-            applyFormatting={applyFormatting}
-          />
-        </div>
-      )}
-
       <div
-        contentEditable={isEditing}
-        onBlur={handleBlur}
-        onInput={handleChange}
-        dangerouslySetInnerHTML={{ __html: editableContent }}
-        style={{ 
-          width: '100%', 
-          height: '100%', 
-          overflow: 'auto',
-          cursor: isEditing ? 'text' : 'inherit',
-          userSelect: 'text', // Allow proper text selection
-          pointerEvents: isEditing ? 'auto' : 'none',
-          textAlign: 'left', // Ensure left-to-right writing direction
-          direction: 'ltr', // Set explicitly for left-to-right writing behavior
-          unicodeBidi: 'normal', // Ensure correct bi-directional text behavior
-        }}
-      />
-    </div>
+          ref={elementRef}
+          style={style}
+          className={`canvas-element ${isSelected ? 'selected' : ''}`}
+          onMouseDown={handleMouseDown}
+          onDoubleClick={handleDoubleClick}
+      >
+        {isSelected && !isEditing && (
+            <>
+              <button
+                  onClick={handleDelete}
+                  className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                  title="Delete element"
+              >
+                <Trash2 size={14} />
+              </button>
+              <div
+                  style={resizeHandleStyle}
+                  onMouseDown={handleResizeStart}
+              />
+            </>
+        )}
+
+        <div
+            contentEditable={isEditing}
+            onBlur={handleBlur}
+            onInput={handleChange}
+            dangerouslySetInnerHTML={{ __html: editableContent }}
+            style={{
+              width: '100%',
+              height: '100%',
+              overflow: 'auto',
+              cursor: isEditing ? 'text' : 'inherit',
+              userSelect: 'text', // Allow proper text selection
+              pointerEvents: isEditing ? 'auto' : 'none',
+              textAlign: 'left', // Ensure left-to-right writing direction
+              direction: 'ltr', // Set explicitly for left-to-right writing behavior
+              unicodeBidi: 'normal', // Ensure correct bi-directional text behavior
+            }}
+        />
+      </div>
   );
 };
 
